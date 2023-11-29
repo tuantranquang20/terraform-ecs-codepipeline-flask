@@ -57,35 +57,6 @@ resource "aws_ecs_service" "flask_app_demo" {
   }
 }
 
-resource "aws_appautoscaling_target" "flask_app_demo_target" {
-  service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_cluster.flask_app_demo.name}/${aws_ecs_service.flask_app_demo.name}" 
-  scalable_dimension = "ecs:service:DesiredCount"
-  
-  min_capacity       = 1
-  max_capacity       = 3
-}
-
-resource "aws_appautoscaling_policy" "flask_app_demo_policy" {
-
-  name               = "cpu-auto-scaling"
-  resource_id        = aws_appautoscaling_target.flask_app_demo_target.resource_id    
-  scalable_dimension = aws_appautoscaling_target.flask_app_demo_target.scalable_dimension
-
-  service_namespace  = aws_appautoscaling_target.flask_app_demo_target.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    target_value = 60
-    
-    scale_in_cooldown = 60
-    scale_out_cooldown = 60
-    
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-    }
-  }  
-}
-
 resource "aws_security_group" "flask_app_demo" {
   name        = "flask-app-demo"
   description = "Allow inbound traffic to flask app"

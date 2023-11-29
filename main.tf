@@ -45,13 +45,23 @@ resource "aws_codestarconnections_connection" "example" {
   name          = "flask-demo-connection"
   provider_type = "GitHub"
 }
+
 resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = "flask-demo-codepipeline-bucket"
+  bucket = "flask-demo-codepipeline-bucket-prv12032523112"
+}
+resource "aws_s3_bucket_ownership_controls" "s3_ownership_controls" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 resource "aws_s3_bucket_acl" "codepipeline_bucket_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.s3_ownership_controls]
   bucket = aws_s3_bucket.codepipeline_bucket.id
+  
   acl    = "private"
 }
+
 resource "aws_iam_role" "codepipeline_role" {
   name = "flask_demo_codepipeline_role"
   assume_role_policy = <<EOF
